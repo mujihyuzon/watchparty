@@ -1,26 +1,36 @@
-// Substitua o conteúdo das aspas abaixo pelas suas credenciais do Supabase
 const SUPABASE_URL = 'https://odspcuyuwgxljbuqiwjv.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Função para buscar e exibir os itens do banco de dados
-async function carregarCatalogo() {
+async function carregarCatalogo(categoriaFiltro = 'Todos') {
   const containerGrid = document.getElementById('catalog-grid');
+  if (!containerGrid) return;
+  
+  containerGrid.innerHTML = '<p style="color: #aaa;">Carregando catálogo...</p>';
 
   try {
-    // Busca todos os dados da tabela 'conteudos'
-    const { data, error } = await supabaseClient.from('conteudos').select('*');
+    let query = supabaseClient.from('conteudos').select('*');
+
+    if (categoriaFiltro !== 'Todos') {
+      query = query.eq('categoria', categoriaFiltro);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
-      console.error('Erro ao buscar dados:', error);
+      console.error('Erro no Supabase:', error);
+      containerGrid.innerHTML = '<p style="color: #ff0055;">Erro ao carregar os dados.</p>';
       return;
     }
 
-    // Limpa a div antes de preencher
+    if (!data || data.length === 0) {
+      containerGrid.innerHTML = '<p style="color: #aaa;">Nenhum item encontrado nesta categoria.</p>';
+      return;
+    }
+
     containerGrid.innerHTML = '';
 
-    // Cria o card no HTML para cada item do banco
     data.forEach(item => {
       const cardElement = document.createElement('div');
       cardElement.classList.add('card');
@@ -33,9 +43,8 @@ async function carregarCatalogo() {
         </div>
       `;
 
-      // Ação de clique para ir ao player futuro
       cardElement.addEventListener('click', () => {
-        alert(`Você clicou em: ${item.titulo}`);
+        alert(`Você escolheu: ${item.titulo}`);
       });
 
       containerGrid.appendChild(cardElement);
@@ -43,8 +52,39 @@ async function carregarCatalogo() {
 
   } catch (err) {
     console.error('Erro inesperado:', err);
+    containerGrid.innerHTML = '<p style="color: #ff0055;">Erro ao conectar com o banco de dados.</p>';
   }
 }
 
-// Roda a função quando a página terminar de carregar
-document.addEventListener('DOMContentLoaded', carregarCatalogo);
+function configurarNavegacao() {
+  const linksNav = document.querySelectorAll('.navbar nav a');
+
+  linksNav.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      linksNav.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      const categoriaSelecionada = link.textContent.trim();
+
+      if (categoriaSelecionada === 'Início') {
+        carregarCatalogo('Todos');
+      } else {
+        carregarCatalogo(categoriaSelecionada);
+      }
+    });
+  });
+
+  const btnLogin = document.getElementById('btn-login');
+  if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+      alert('Em breve: tela de Login e Cadastro!');
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  carregarCatalogo();
+  configurarNavegacao();
+});
