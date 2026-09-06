@@ -1,6 +1,6 @@
 // Substitua o conteúdo das aspas abaixo pelas suas credenciais do Supabase
-const SUPABASE_URL = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kc3BjdXl1d2d4bGpidXFpd2p2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2NTEwNTIsImV4cCI6MjEwNDIyNzA1Mn0.IGLflTEVQaVokV8vDS5vL6K58w-eLqIoT0chBrqXvOg;
-const SUPABASE_KEY = sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh;
+const SUPABASE_URL = 'https://odspcuyuwgxljbuqiwjv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
