@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WatchParty - Assistir</title>
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- SCRIPT DO MONETAG (ONCLICK) -->
+  <script>(function(s){s.dataset.zone='11742409',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+</head>
+<body style="background-color: #141414; color: #fff; font-family: sans-serif; margin: 0; padding: 0;">
+
+  <!-- Header -->
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: #000;">
+    <a href="index.html" class="logo" style="font-size: 24px; font-weight: bold; color: #e50914; text-decoration: none;">WatchParty</a>
+    <a href="index.html" class="btn-primary" style="background: #e50914; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold;">Voltar ao Catálogo</a>
+  </header>
+
+  <!-- Container do Player -->
+  <main style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
+    <h1 id="titulo-conteudo" style="font-size: 28px; margin-bottom: 10px;">Carregando...</h1>
+    <p id="categoria-conteudo" style="color: #e50914; font-weight: bold; margin-bottom: 20px;"></p>
+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+      <iframe id="iframe-player" src="" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    async function carregarConteudo() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+
+      if (!id) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Busca as informações no Supabase
+      const { data, error } = await _supabase
+        .from('conteudos')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (data) {
+        document.getElementById('titulo-conteudo').innerText = data.titulo;
+        document.getElementById('categoria-conteudo').innerText = `Categoria: ${data.categoria}`;
+
+        if (data.video_url) {
+          document.getElementById('iframe-player').src = data.video_url;
+        } else {
+          document.getElementById('iframe-player').srcdoc = `
+            <div style="display:flex; height:100%; justify-content:center; align-items:center; color:#888; font-family:sans-serif; text-align:center;">
+              <div>
+                <h3>Vídeo/Capítulo em breve!</h3>
+                <p style="font-size: 14px;">O link do conteúdo ainda não foi adicionado ao banco.</p>
+              </div>
+            </div>`;
+        }
+      }
+    }
+
+    carregarConteudo();
+  </script>
+</body>
+</html>
