@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WatchParty - Assistir</title>
+  <title>WatchParty - Detalhes</title>
   <link rel="stylesheet" href="styles.css">
   
   <!-- Supabase CDN -->
@@ -17,32 +17,82 @@
   <!-- Header -->
   <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(5px);">
     <a href="index.html" style="font-size: 26px; font-weight: bold; color: #e50914; text-decoration: none; letter-spacing: 0.5px;">WatchParty</a>
-    <a href="index.html" style="background: #e50914; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: 600; transition: 0.2s;">← Voltar ao Catálogo</a>
+    <a href="index.html" style="background: #e50914; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: 600;">← Voltar ao Catálogo</a>
   </header>
 
-  <!-- Container Principal -->
+  <!-- Main Container -->
   <main style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
     
-    <!-- Cabeçalho do Conteúdo -->
-    <div style="margin-bottom: 20px;">
-      <span id="categoria-conteudo" style="background: #e50914; color: #fff; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">CARREGANDO...</span>
-      <h1 id="titulo-conteudo" style="font-size: 32px; margin: 12px 0 5px 0;">Carregando título...</h1>
+    <!-- Hero / Poster & Ficha Técnica Completa -->
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 40px; background: #1f1f1f; padding: 25px; border-radius: 12px; border: 1px solid #333;">
+      
+      <!-- Poster -->
+      <div style="flex: 0 0 240px; max-width: 100%;">
+        <img id="poster-img" src="" alt="Capa" style="width: 100%; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); object-fit: cover; aspect-ratio: 2/3; background: #2a2a2a;">
+      </div>
+
+      <!-- Ficha Técnica e Detalhes do Filme / Série -->
+      <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center;">
+        <span id="categoria-badge" style="display: inline-block; background: #e50914; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; width: fit-content; margin-bottom: 12px;">CARREGANDO...</span>
+        
+        <h1 id="titulo-principal" style="font-size: 36px; margin: 0 0 10px 0; font-weight: 800;">Carregando...</h1>
+        
+        <!-- Metadados / Informações Técnicas -->
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; color: #aaa; font-size: 14px; margin-bottom: 18px;">
+          <span id="ano-lancamento" style="color: #46d369; font-weight: bold;">2026</span>
+          <span>•</span>
+          <span id="duracao-tempo">---</span>
+          <span>•</span>
+          <span id="avaliacao-nota" style="border: 1px solid #ffb400; color: #ffb400; padding: 1px 8px; border-radius: 3px; font-weight: bold; font-size: 12px;">★ 8.5</span>
+        </div>
+
+        <!-- Sinopse -->
+        <p id="sinopse-texto" style="color: #ccc; line-height: 1.6; font-size: 15px; margin-bottom: 25px;">
+          Carregando informações técnicas e sinopse do conteúdo...
+        </p>
+
+        <!-- Botões de Ação para Filmes -->
+        <div id="area-botoes-filme" style="display: none; gap: 15px; flex-wrap: wrap;">
+          <button id="btn-assistir-filme" style="background: #e50914; color: white; border: none; padding: 12px 28px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+            ▶ Assistir Filme
+          </button>
+
+          <button id="btn-trailer-filme" style="background: #333; color: white; border: 1px solid #555; padding: 12px 24px; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+            🎬 Ver Trailer
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Area do Player -->
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.9); border: 1px solid #222;">
-      <iframe id="iframe-player" src="" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+    <!-- Seção de Episódios (Para Séries / Doramas / Animes) -->
+    <div id="area-temporadas" style="display: none; margin-bottom: 30px;">
+      <h3 style="margin-bottom: 12px; font-size: 20px; border-left: 4px solid #e50914; padding-left: 10px;">Episódios</h3>
+      <select id="select-temporadas" style="background: #2a2a2a; color: white; border: 1px solid #444; padding: 10px 16px; border-radius: 6px; font-size: 15px; width: 220px; cursor: pointer; outline: none;">
+        <option value="1">1ª Temporada</option>
+      </select>
+      
+      <!-- Grade de Episódios -->
+      <div id="grid-episodios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 15px;">
+        <!-- Gerado via Script -->
+      </div>
+    </div>
+
+    <!-- Container do Player de Vídeo -->
+    <div id="container-player" style="margin-top: 30px;">
+      <h3 id="titulo-player-ep" style="margin-bottom: 12px; font-size: 18px; color: #ddd;">Player</h3>
+      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.9); border: 1px solid #222;">
+        <iframe id="iframe-player" src="" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+      </div>
     </div>
 
   </main>
 
   <script>
-    // Inicialização do Supabase na própria detalhes.html
     const SUPABASE_URL = 'https://odspcuyuwgxljbuqiwjv.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function carregarConteudo() {
+    async function carregarDetalhes() {
       const urlParams = new URLSearchParams(window.location.search);
       const id = urlParams.get('id');
 
@@ -51,7 +101,7 @@
         return;
       }
 
-      // Busca as informações do ID no Supabase
+      // Busca o item no Supabase
       const { data, error } = await supabaseClient
         .from('conteudos')
         .select('*')
@@ -59,30 +109,100 @@
         .single();
 
       if (error || !data) {
-        document.getElementById('titulo-conteudo').innerText = 'Conteúdo não encontrado';
+        document.getElementById('titulo-principal').innerText = 'Conteúdo não encontrado';
         return;
       }
 
-      // Atualiza textos na tela
-      document.getElementById('titulo-conteudo').innerText = data.titulo;
-      document.getElementById('categoria-conteudo').innerText = data.categoria;
+      // Preenche a Ficha Técnica
+      document.getElementById('titulo-principal').innerText = data.titulo;
+      document.getElementById('categoria-badge').innerText = data.categoria || 'Geral';
+      document.getElementById('poster-img').src = data.capa || '';
+      document.getElementById('sinopse-texto').innerText = data.sinopse || 'Nenhuma sinopse cadastrada para este título ainda.';
+      document.getElementById('ano-lancamento').innerText = data.ano || '2026';
+      document.getElementById('duracao-tempo').innerText = data.duracao || (data.categoria && data.categoria.toLowerCase().includes('filme') ? '2h 00m' : '1 Temp.');
+      document.getElementById('avaliacao-nota').innerText = `★ ${data.nota || '8.5'}`;
       document.title = `${data.titulo} - WatchParty`;
 
-      // Se tiver link de vídeo cadastrado roda o iframe, senão exibe tela de em breve
-      if (data.video_url && data.video_url.trim() !== '') {
-        document.getElementById('iframe-player').src = data.video_url;
+      const categoriaLower = (data.categoria || '').toLowerCase();
+      const isFilme = categoriaLower.includes('filme');
+
+      if (isFilme) {
+        // Exibe botões de Filme (Assistir + Trailer) e esconde área de episódios
+        document.getElementById('area-botoes-filme').style.display = 'flex';
+        document.getElementById('area-temporadas').style.display = 'none';
+        
+        // Ação do Botão Assistir Filme
+        document.getElementById('btn-assistir-filme').onclick = () => {
+          document.getElementById('titulo-player-ep').innerText = `Assistindo Filme: ${data.titulo}`;
+          carregarVideoPlayer(data.video_url, data.titulo);
+        };
+
+        // Ação do Botão Ver Trailer
+        document.getElementById('btn-trailer-filme').onclick = () => {
+          document.getElementById('titulo-player-ep').innerText = `Trailer Oficial: ${data.titulo}`;
+          carregarVideoPlayer(data.trailer_url, `Trailer de ${data.titulo}`);
+        };
+
+        // Carrega o vídeo principal por padrão
+        carregarVideoPlayer(data.video_url, data.titulo);
+
       } else {
-        document.getElementById('iframe-player').srcdoc = `
+        // Exibe seletor de episódios para Séries / Doramas / Animes
+        document.getElementById('area-botoes-filme').style.display = 'none';
+        document.getElementById('area-temporadas').style.display = 'block';
+        
+        renderizarGradeEpisodios(data);
+      }
+    }
+
+    function renderizarGradeEpisodios(conteudo) {
+      const grid = document.getElementById('grid-episodios');
+      grid.innerHTML = '';
+
+      const totalEpisodios = conteudo.total_episodios || 12;
+
+      for (let i = 1; i <= totalEpisodios; i++) {
+        const btnEp = document.createElement('button');
+        btnEp.innerText = `Episódio ${i}`;
+        btnEp.style.cssText = `
+          background: #2a2a2a; 
+          color: white; 
+          border: 1px solid #333; 
+          padding: 12px; 
+          border-radius: 6px; 
+          cursor: pointer; 
+          font-weight: 600;
+          transition: 0.2s;
+        `;
+
+        btnEp.onmouseover = () => btnEp.style.background = '#e50914';
+        btnEp.onmouseout = () => btnEp.style.background = '#2a2a2a';
+
+        btnEp.onclick = () => {
+          document.getElementById('titulo-player-ep').innerText = `Assistindo: Episódio ${i}`;
+          carregarVideoPlayer(conteudo.video_url, `${conteudo.titulo} - Ep ${i}`);
+        };
+
+        grid.appendChild(btnEp);
+      }
+    }
+
+    function carregarVideoPlayer(url, tituloDisplay) {
+      const player = document.getElementById('iframe-player');
+      if (url && url.trim() !== '') {
+        player.src = url;
+      } else {
+        player.srcdoc = `
           <body style="background:#0a0a0a; color:#fff; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; font-family:sans-serif; text-align:center;">
             <div style="background:#181818; padding:30px; border-radius:12px; border:1px solid #333; max-width:80%;">
-              <h2 style="margin-top:0; color:#e50914;">🎬 Conteúdo em breve!</h2>
-              <p style="color:#aaa; font-size:15px; margin-bottom:0;">O vídeo / capítulo de <b>${data.titulo}</b> está sendo processado e estará disponível logo em breve no servidor.</p>
+              <h2 style="margin-top:0; color:#e50914;">🎬 Vídeo / Trailer em breve!</h2>
+              <p style="color:#aaa; font-size:15px; margin-bottom:0;">O link de <b>${tituloDisplay}</b> ainda não foi cadastrado no servidor.</p>
             </div>
           </body>`;
       }
     }
 
-    carregarConteudo();
+    carregarDetalhes();
   </script>
 </body>
 </html>
