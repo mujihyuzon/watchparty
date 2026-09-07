@@ -9,6 +9,55 @@
   
   <!-- SCRIPT DO MONETAG (ONCLICK) -->
   <script>(function(s){s.dataset.zone='11742409',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
+  <style>
+    /* Ocultar barra de rolagem horizontal nos carrosséis */
+    .fileira-scroll {
+      display: flex;
+      gap: 15px;
+      overflow-x: auto;
+      padding: 10px 0 20px 0;
+      scroll-behavior: smooth;
+    }
+
+    .fileira-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .fileira-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Animação e Hover dos Cards estilo Netflix */
+    .card-item {
+      flex: 0 0 170px;
+      text-decoration: none;
+      color: white;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+    }
+
+    .card-item:hover {
+      transform: scale(1.08);
+      z-index: 20;
+    }
+
+    .card-capa {
+      width: 100%;
+      aspect-ratio: 2/3;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #222;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .card-capa img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
 </head>
 <body style="background-color: #141414; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0;">
 
@@ -17,17 +66,19 @@
     <a href="index.html" style="font-size: 28px; font-weight: bold; color: #e50914; text-decoration: none; letter-spacing: 0.5px;">WatchParty</a>
     <nav style="display: flex; gap: 20px; font-weight: 500; font-size: 14px;">
       <a href="index.html" style="color: #fff; text-decoration: none;">Início</a>
-      <a href="#" style="color: #aaa; text-decoration: none;">Animes</a>
-      <a href="#" style="color: #aaa; text-decoration: none;">Filmes</a>
-      <a href="#" style="color: #aaa; text-decoration: none;">Séries</a>
-      <a href="#" style="color: #aaa; text-decoration: none;">Doramas</a>
+      <a href="#categoria-Animes" style="color: #aaa; text-decoration: none;">Animes</a>
+      <a href="#categoria-Filmes" style="color: #aaa; text-decoration: none;">Filmes</a>
+      <a href="#categoria-Séries" style="color: #aaa; text-decoration: none;">Séries</a>
+      <a href="#categoria-Doramas" style="color: #aaa; text-decoration: none;">Doramas</a>
+      <a href="#categoria-Desenhos" style="color: #aaa; text-decoration: none;">Desenhos</a>
+      <a href="#categoria-Mangás" style="color: #aaa; text-decoration: none;">Mangás</a>
     </nav>
   </header>
 
   <!-- BANNER HERO COM VÍDEO / IMAGEM EM DESTAQUE -->
   <section id="hero-banner" style="position: relative; width: 100%; height: 80vh; min-height: 520px; overflow: hidden; display: flex; align-items: flex-end; padding: 0 50px 80px 50px; box-sizing: border-box; background: #181818;">
     
-    <!-- Background estático com Imagem de Capa (Fallback de segurança) -->
+    <!-- Background estático com Imagem de Capa (Fallback) -->
     <div id="hero-bg-image" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: brightness(0.6); z-index: 0; transition: opacity 0.5s;"></div>
 
     <!-- Player do Trailer no Fundo (YouTube Embed) -->
@@ -40,10 +91,10 @@
       </iframe>
     </div>
 
-    <!-- Sombra e Sombreamento para Leitura do Texto -->
+    <!-- Sombreamento de Gradiente -->
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(20,20,20,0.1) 0%, rgba(20,20,20,0.7) 65%, #141414 100%), linear-gradient(90deg, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.4) 50%, transparent 100%); z-index: 2;"></div>
 
-    <!-- Informações do Título em Destaque -->
+    <!-- Informações do Destaque -->
     <div style="position: relative; z-index: 3; max-width: 650px;">
       <span style="background: #e50914; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
         🔥 Em Destaque
@@ -70,13 +121,9 @@
 
   </section>
 
-  <!-- CATÁLOGO DE CONTEÚDOS -->
-  <main style="max-width: 1300px; margin: -30px auto 50px auto; padding: 0 40px; position: relative; z-index: 10;">
-    <h2 style="font-size: 22px; margin-bottom: 20px; border-left: 4px solid #e50914; padding-left: 10px;">Catálogo Completo</h2>
-    
-    <div id="grid-catalogo" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px;">
-      <!-- Itens renderizados dinamicamente -->
-    </div>
+  <!-- SEÇÕES DE CATEGORIAS ESTILO NETFLIX -->
+  <main id="secoes-catalogo" style="max-width: 1400px; margin: -40px auto 60px auto; padding: 0 40px; position: relative; z-index: 10;">
+    <!-- As fileiras serão injetadas dinamicamente via JS -->
   </main>
 
   <script>
@@ -84,7 +131,9 @@
     const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Converte qualquer link de YouTube em Embed com parâmetros de origem e autoplay
+    // Ordem exata que você quer exibir no site
+    const CATEGORIAS_ORDEM = ['Séries', 'Filmes', 'Animes', 'Desenhos', 'Doramas', 'Mangás'];
+
     function obterYoutubeEmbedUrl(url) {
       if (!url || url.trim() === '') return '';
       
@@ -104,51 +153,66 @@
     }
 
     async function carregarDadosSite() {
-      // 1. Busca todos os títulos
       const { data: todos, error } = await supabaseClient.from('conteudos').select('*');
 
       if (error || !todos || todos.length === 0) return;
 
-      // 2. Procura um marcado como destaque
+      // 1. Destaque do Banner Topo
       const itemDestaque = todos.find(item => item.destaque === true || item.destaque === 'sim') || todos[0];
 
-      // 3. Preenche as informações no Banner
       document.getElementById('hero-titulo').innerText = itemDestaque.titulo;
       document.getElementById('hero-sinopse').innerText = itemDestaque.sinopse || 'Sinopse não disponível.';
       document.getElementById('hero-btn-assistir').href = `detalhes.html?id=${itemDestaque.id}`;
       document.getElementById('hero-btn-info').href = `detalhes.html?id=${itemDestaque.id}`;
 
-      // Imagem de Fundo (Garante que nunca fique escuro sem imagem)
       if (itemDestaque.capa) {
         document.getElementById('hero-bg-image').style.backgroundImage = `url('${itemDestaque.capa}')`;
       }
 
-      // 4. Carrega o vídeo no player com o formato correto
       const embedUrl = obterYoutubeEmbedUrl(itemDestaque.trailer_url);
       if (embedUrl) {
         document.getElementById('hero-video').src = embedUrl;
       }
 
-      // 5. Renderiza a grade do catálogo
-      const grid = document.getElementById('grid-catalogo');
-      grid.innerHTML = '';
+      // 2. Agrupar Títulos por Categoria
+      const containerSecoes = document.getElementById('secoes-catalogo');
+      containerSecoes.innerHTML = '';
 
-      todos.forEach(item => {
-        const card = document.createElement('a');
-        card.href = `detalhes.html?id=${item.id}`;
-        card.style.cssText = 'text-decoration: none; color: white; transition: transform 0.2s;';
-        card.onmouseover = () => card.style.transform = 'scale(1.05)';
-        card.onmouseout = () => card.style.transform = 'scale(1)';
+      CATEGORIAS_ORDEM.forEach(categoriaNome => {
+        // Filtra os itens dessa categoria (ignora maiúsculas/minúsculas)
+        const itensDaCategoria = todos.filter(item => 
+          item.categoria && item.categoria.trim().toLowerCase() === categoriaNome.toLowerCase()
+        );
 
-        card.innerHTML = `
-          <div style="aspect-ratio: 2/3; border-radius: 8px; overflow: hidden; background: #222; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
-            <img src="${item.capa || ''}" alt="${item.titulo}" style="width: 100%; height: 100%; object-fit: cover;">
-          </div>
-          <p style="margin: 8px 0 2px 0; font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.titulo}</p>
-          <span style="font-size: 11px; color: #888;">${item.categoria || 'Geral'}</span>
-        `;
+        // Se houver títulos cadastrados nessa categoria, renderiza a fileira
+        if (itensDaCategoria.length > 0) {
+          const secaoDiv = document.createElement('section');
+          secaoDiv.id = `categoria-${categoriaNome}`;
+          secaoDiv.style.marginBottom = '35px';
 
-        grid.appendChild(card);
+          let htmlCards = '';
+          itensDaCategoria.forEach(item => {
+            htmlCards += `
+              <a href="detalhes.html?id=${item.id}" class="card-item">
+                <div class="card-capa">
+                  <img src="${item.capa || ''}" alt="${item.titulo}">
+                </div>
+                <p style="margin: 8px 0 2px 0; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.titulo}</p>
+              </a>
+            `;
+          });
+
+          secaoDiv.innerHTML = `
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; border-left: 4px solid #e50914; padding-left: 10px; color: #e5e5e5;">
+              ${categoriaNome}
+            </h2>
+            <div class="fileira-scroll">
+              ${htmlCards}
+            </div>
+          `;
+
+          containerSecoes.appendChild(secaoDiv);
+        }
       });
     }
 
