@@ -32,8 +32,12 @@ async function carregarCatalogo(categoriaFiltro = 'Todos') {
     containerGrid.innerHTML = '';
 
     data.forEach(item => {
-      const cardElement = document.createElement('div');
+      // Cria o card como um link apontando para a página detalhes.html passando o ID
+      const cardElement = document.createElement('a');
+      cardElement.href = `detalhes.html?id=${item.id}`;
       cardElement.classList.add('card');
+      cardElement.style.textDecoration = 'none';
+      cardElement.style.color = 'inherit';
       
       cardElement.innerHTML = `
         <img src="${item.capa}" alt="${item.titulo}">
@@ -42,10 +46,6 @@ async function carregarCatalogo(categoriaFiltro = 'Todos') {
           <div class="card-type">${item.categoria}</div>
         </div>
       `;
-
-      cardElement.addEventListener('click', () => {
-        alert(`Você escolheu: ${item.titulo}`);
-      });
 
       containerGrid.appendChild(cardElement);
     });
