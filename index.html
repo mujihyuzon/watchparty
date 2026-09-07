@@ -6,12 +6,15 @@
   <title>WatchParty - Catálogo</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- SCRIPT DO MONETAG (ONCLICK) -->
+  <script>(function(s){s.dataset.zone='11742409',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </head>
 <body style="background-color: #141414; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0;">
 
   <!-- Header / Navbar -->
-  <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%); position: fixed; top: 0; width: 100%; z-index: 100; box-sizing: border-box;">
-    <a href="index.html" style="font-size: 28px; font-weight: bold; color: #e50914; text-decoration: none;">WatchParty</a>
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%); position: fixed; top: 0; width: 100%; z-index: 100; box-sizing: border-box; backdrop-filter: blur(4px);">
+    <a href="index.html" style="font-size: 28px; font-weight: bold; color: #e50914; text-decoration: none; letter-spacing: 0.5px;">WatchParty</a>
     <nav style="display: flex; gap: 20px; font-weight: 500; font-size: 14px;">
       <a href="index.html" style="color: #fff; text-decoration: none;">Início</a>
       <a href="#" style="color: #aaa; text-decoration: none;">Animes</a>
@@ -21,9 +24,12 @@
     </nav>
   </header>
 
-  <!-- BANNER HERO COM VÍDEO EM DESTAQUE -->
-  <section id="hero-banner" style="position: relative; width: 100%; height: 80vh; min-height: 520px; overflow: hidden; display: flex; align-items: flex-end; padding: 0 50px 80px 50px; box-sizing: border-box;">
+  <!-- BANNER HERO COM VÍDEO / IMAGEM EM DESTAQUE -->
+  <section id="hero-banner" style="position: relative; width: 100%; height: 80vh; min-height: 520px; overflow: hidden; display: flex; align-items: flex-end; padding: 0 50px 80px 50px; box-sizing: border-box; background: #181818;">
     
+    <!-- Background estático com Imagem de Capa (Fallback de segurança) -->
+    <div id="hero-bg-image" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: brightness(0.6); z-index: 0; transition: opacity 0.5s;"></div>
+
     <!-- Player do Trailer no Fundo (YouTube Embed) -->
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden;">
       <iframe 
@@ -35,7 +41,7 @@
     </div>
 
     <!-- Sombra e Sombreamento para Leitura do Texto -->
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(20,20,20,0.2) 0%, rgba(20,20,20,0.6) 60%, #141414 100%), linear-gradient(90deg, rgba(20,20,20,0.85) 0%, rgba(20,20,20,0.3) 50%, transparent 100%); z-index: 2;"></div>
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(20,20,20,0.1) 0%, rgba(20,20,20,0.7) 65%, #141414 100%), linear-gradient(90deg, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.4) 50%, transparent 100%); z-index: 2;"></div>
 
     <!-- Informações do Título em Destaque -->
     <div style="position: relative; z-index: 3; max-width: 650px;">
@@ -78,9 +84,9 @@
     const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Extrai o ID do vídeo do YouTube caso venha URL completa
+    // Converte qualquer link de YouTube em Embed com parâmetros de origem e autoplay
     function obterYoutubeEmbedUrl(url) {
-      if (!url) return 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&loop=1'; // Fallback
+      if (!url || url.trim() === '') return '';
       
       let videoId = '';
       if (url.includes('v=')) {
@@ -90,10 +96,11 @@
       } else if (url.includes('embed/')) {
         videoId = url.split('embed/')[1].split('?')[0];
       } else {
-        videoId = url; // Caso passe direto o ID
+        videoId = url.trim();
       }
 
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&modestbranding=1`;
+      const domain = window.location.origin;
+      return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&enablejsapi=1&origin=${encodeURIComponent(domain)}&rel=0&modestbranding=1`;
     }
 
     async function carregarDadosSite() {
@@ -102,20 +109,27 @@
 
       if (error || !todos || todos.length === 0) return;
 
-      // 2. Procura um marcado como destaque, ou escolhe o primeiro da lista
+      // 2. Procura um marcado como destaque
       const itemDestaque = todos.find(item => item.destaque === true || item.destaque === 'sim') || todos[0];
 
-      // 3. Preenche a área do Banner Hero
+      // 3. Preenche as informações no Banner
       document.getElementById('hero-titulo').innerText = itemDestaque.titulo;
       document.getElementById('hero-sinopse').innerText = itemDestaque.sinopse || 'Sinopse não disponível.';
       document.getElementById('hero-btn-assistir').href = `detalhes.html?id=${itemDestaque.id}`;
       document.getElementById('hero-btn-info').href = `detalhes.html?id=${itemDestaque.id}`;
 
-      // Carrega o trailer do YouTube sem áudio e em loop
-      const iframeVideo = document.getElementById('hero-video');
-      iframeVideo.src = obterYoutubeEmbedUrl(itemDestaque.trailer_url);
+      // Imagem de Fundo (Garante que nunca fique escuro sem imagem)
+      if (itemDestaque.capa) {
+        document.getElementById('hero-bg-image').style.backgroundImage = `url('${itemDestaque.capa}')`;
+      }
 
-      // 4. Renderiza as capas no catálogo abaixo
+      // 4. Carrega o vídeo no player com o formato correto
+      const embedUrl = obterYoutubeEmbedUrl(itemDestaque.trailer_url);
+      if (embedUrl) {
+        document.getElementById('hero-video').src = embedUrl;
+      }
+
+      // 5. Renderiza a grade do catálogo
       const grid = document.getElementById('grid-catalogo');
       grid.innerHTML = '';
 
