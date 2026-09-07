@@ -9,7 +9,7 @@
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  <!-- SCRIPT DO MONETAG (ONCLICK) -->
+  <!-- SCRIPT MONETAG -->
   <script>(function(s){s.dataset.zone='11742409',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </head>
 <body style="background-color: #141414; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh;">
@@ -31,13 +31,13 @@
         <img id="poster-img" src="" alt="Capa" style="width: 100%; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); object-fit: cover; aspect-ratio: 2/3; background: #2a2a2a;">
       </div>
 
-      <!-- Ficha Técnica e Detalhes do Filme / Série -->
+      <!-- Ficha Técnica -->
       <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: center;">
         <span id="categoria-badge" style="display: inline-block; background: #e50914; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; width: fit-content; margin-bottom: 12px;">CARREGANDO...</span>
         
         <h1 id="titulo-principal" style="font-size: 36px; margin: 0 0 10px 0; font-weight: 800;">Carregando...</h1>
         
-        <!-- Metadados / Informações Técnicas -->
+        <!-- Metadados -->
         <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; color: #aaa; font-size: 14px; margin-bottom: 18px;">
           <span id="ano-lancamento" style="color: #46d369; font-weight: bold;">2026</span>
           <span>•</span>
@@ -48,38 +48,35 @@
 
         <!-- Sinopse -->
         <p id="sinopse-texto" style="color: #ccc; line-height: 1.6; font-size: 15px; margin-bottom: 25px;">
-          Carregando informações técnicas e sinopse do conteúdo...
+          Carregando informações técnicas e sinopse...
         </p>
 
         <!-- Botões de Ação para Filmes -->
         <div id="area-botoes-filme" style="display: none; gap: 15px; flex-wrap: wrap;">
-          <button id="btn-assistir-filme" style="background: #e50914; color: white; border: none; padding: 12px 28px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+          <button id="btn-assistir-filme" style="background: #e50914; color: white; border: none; padding: 12px 28px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
             ▶ Assistir Filme
           </button>
 
-          <button id="btn-trailer-filme" style="background: #333; color: white; border: 1px solid #555; padding: 12px 24px; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+          <button id="btn-trailer-filme" style="background: #333; color: white; border: 1px solid #555; padding: 12px 24px; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
             🎬 Ver Trailer
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Seção de Episódios (Para Séries / Doramas / Animes) -->
-    <div id="area-temporadas" style="display: none; margin-bottom: 30px;">
-      <h3 style="margin-bottom: 12px; font-size: 20px; border-left: 4px solid #e50914; padding-left: 10px;">Episódios</h3>
-      <select id="select-temporadas" style="background: #2a2a2a; color: white; border: 1px solid #444; padding: 10px 16px; border-radius: 6px; font-size: 15px; width: 220px; cursor: pointer; outline: none;">
-        <option value="1">1ª Temporada</option>
-      </select>
+    <!-- Seção de Episódios / Capítulos -->
+    <div id="area-episodios-container" style="display: none; margin-bottom: 30px;">
+      <h3 id="titulo-secao-eps" style="margin-bottom: 12px; font-size: 20px; border-left: 4px solid #e50914; padding-left: 10px;">Episódios</h3>
       
-      <!-- Grade de Episódios -->
+      <!-- Grade de Episódios / Capítulos -->
       <div id="grid-episodios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 15px;">
         <!-- Gerado via Script -->
       </div>
     </div>
 
-    <!-- Container do Player de Vídeo -->
+    <!-- Container do Player de Vídeo ou Leitor PDF -->
     <div id="container-player" style="margin-top: 30px;">
-      <h3 id="titulo-player-ep" style="margin-bottom: 12px; font-size: 18px; color: #ddd;">Player</h3>
+      <h3 id="titulo-player-ep" style="margin-bottom: 12px; font-size: 18px; color: #ddd;">Exibição</h3>
       <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.9); border: 1px solid #222;">
         <iframe id="iframe-player" src="" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
       </div>
@@ -101,69 +98,80 @@
         return;
       }
 
-      // Busca o item no Supabase
-      const { data, error } = await supabaseClient
+      // 1. Busca os dados da obra na tabela "conteudos"
+      const { data: conteudo, error } = await supabaseClient
         .from('conteudos')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (error || !data) {
+      if (error || !conteudo) {
         document.getElementById('titulo-principal').innerText = 'Conteúdo não encontrado';
         return;
       }
 
       // Preenche a Ficha Técnica
-      document.getElementById('titulo-principal').innerText = data.titulo;
-      document.getElementById('categoria-badge').innerText = data.categoria || 'Geral';
-      document.getElementById('poster-img').src = data.capa || '';
-      document.getElementById('sinopse-texto').innerText = data.sinopse || 'Nenhuma sinopse cadastrada para este título ainda.';
-      document.getElementById('ano-lancamento').innerText = data.ano || '2026';
-      document.getElementById('duracao-tempo').innerText = data.duracao || (data.categoria && data.categoria.toLowerCase().includes('filme') ? '2h 00m' : '1 Temp.');
-      document.getElementById('avaliacao-nota').innerText = `★ ${data.nota || '8.5'}`;
-      document.title = `${data.titulo} - WatchParty`;
+      document.getElementById('titulo-principal').innerText = conteudo.titulo;
+      document.getElementById('categoria-badge').innerText = conteudo.categoria || 'Geral';
+      document.getElementById('poster-img').src = conteudo.capa || '';
+      document.getElementById('sinopse-texto').innerText = conteudo.sinopse || 'Nenhuma sinopse cadastrada.';
+      document.getElementById('ano-lancamento').innerText = conteudo.ano || '2026';
+      document.getElementById('duracao-tempo').innerText = conteudo.duracao || (conteudo.categoria && conteudo.categoria.toLowerCase().includes('filme') ? '2h 00m' : '1 Temp.');
+      document.getElementById('avaliacao-nota').innerText = `★ ${conteudo.nota || '8.5'}`;
+      document.title = `${conteudo.titulo} - WatchParty`;
 
-      const categoriaLower = (data.categoria || '').toLowerCase();
+      const categoriaLower = (conteudo.categoria || '').toLowerCase();
       const isFilme = categoriaLower.includes('filme');
+      const isManga = categoriaLower.includes('manga') || categoriaLower.includes('mangá');
 
       if (isFilme) {
-        // Exibe botões de Filme (Assistir + Trailer) e esconde área de episódios
+        // Exibe botões de Filme
         document.getElementById('area-botoes-filme').style.display = 'flex';
-        document.getElementById('area-temporadas').style.display = 'none';
+        document.getElementById('area-episodios-container').style.display = 'none';
         
-        // Ação do Botão Assistir Filme
         document.getElementById('btn-assistir-filme').onclick = () => {
-          document.getElementById('titulo-player-ep').innerText = `Assistindo Filme: ${data.titulo}`;
-          carregarVideoPlayer(data.video_url, data.titulo);
+          document.getElementById('titulo-player-ep').innerText = `Assistindo Filme: ${conteudo.titulo}`;
+          carregarMidiaPlayer(conteudo.video_url || conteudo.url, 'video', conteudo.titulo);
         };
 
-        // Ação do Botão Ver Trailer
         document.getElementById('btn-trailer-filme').onclick = () => {
-          document.getElementById('titulo-player-ep').innerText = `Trailer Oficial: ${data.titulo}`;
-          carregarVideoPlayer(data.trailer_url, `Trailer de ${data.titulo}`);
+          document.getElementById('titulo-player-ep').innerText = `Trailer Oficial: ${conteudo.titulo}`;
+          carregarMidiaPlayer(conteudo.trailer_url, 'video', `Trailer de ${conteudo.titulo}`);
         };
 
-        // Carrega o vídeo principal por padrão
-        carregarVideoPlayer(data.video_url, data.titulo);
+        carregarMidiaPlayer(conteudo.video_url || conteudo.url, 'video', conteudo.titulo);
 
       } else {
-        // Exibe seletor de episódios para Séries / Doramas / Animes
+        // Exibe grade para Séries, Animes, Desenhos ou Mangás
         document.getElementById('area-botoes-filme').style.display = 'none';
-        document.getElementById('area-temporadas').style.display = 'block';
-        
-        renderizarGradeEpisodios(data);
+        document.getElementById('area-episodios-container').style.display = 'block';
+        document.getElementById('titulo-secao-eps').innerText = isManga ? 'Capítulos (PDF)' : 'Episódios';
+
+        // 2. Busca os episódios na nova tabela "episodios"
+        const { data: listaEpisodios } = await supabaseClient
+          .from('episodios')
+          .select('*')
+          .eq('conteudo_id', id)
+          .order('numero', { ascending: true });
+
+        renderizarGradeEpisodios(listaEpisodios || [], isManga, conteudo.titulo);
       }
     }
 
-    function renderizarGradeEpisodios(conteudo) {
+    function renderizarGradeEpisodios(lista, isManga, tituloObra) {
       const grid = document.getElementById('grid-episodios');
       grid.innerHTML = '';
 
-      const totalEpisodios = conteudo.total_episodios || 12;
+      if (lista.length === 0) {
+        grid.innerHTML = '<p style="color:#aaa; grid-column: 1/-1;">Nenhum episódio ou capítulo cadastrado ainda.</p>';
+        return;
+      }
 
-      for (let i = 1; i <= totalEpisodios; i++) {
+      lista.forEach(ep => {
         const btnEp = document.createElement('button');
-        btnEp.innerText = `Episódio ${i}`;
+        const rotulo = isManga ? `Capítulo ${ep.numero}` : `Episódio ${ep.numero}`;
+        btnEp.innerText = rotulo;
+        
         btnEp.style.cssText = `
           background: #2a2a2a; 
           color: white; 
@@ -179,19 +187,23 @@
         btnEp.onmouseout = () => btnEp.style.background = '#2a2a2a';
 
         btnEp.onclick = () => {
-          document.getElementById('titulo-player-ep').innerText = `Assistindo: Episódio ${i}`;
-          
-          // Se tiver link específico por episódio ou link geral
-          const linkVideo = conteudo[`ep_${i}_url`] || conteudo.video_url;
-          carregarVideoPlayer(linkVideo, `${conteudo.titulo} - Ep ${i}`);
+          document.getElementById('titulo-player-ep').innerText = `${isManga ? 'Lendo' : 'Assistindo'}: ${rotulo}`;
+          carregarMidiaPlayer(ep.url, isManga ? 'manga' : 'video', `${tituloObra} - ${rotulo}`);
         };
 
         grid.appendChild(btnEp);
+      });
+
+      // Carrega o primeiro episódio/capítulo por padrão
+      if (lista.length > 0) {
+        const primeiro = lista[0];
+        const rotulo = isManga ? `Capítulo ${primeiro.numero}` : `Episódio ${primeiro.numero}`;
+        document.getElementById('titulo-player-ep').innerText = `${isManga ? 'Lendo' : 'Assistindo'}: ${rotulo}`;
+        carregarMidiaPlayer(primeiro.url, isManga ? 'manga' : 'video', `${tituloObra} - ${rotulo}`);
       }
     }
 
-    // Trata links do Telegram, YouTube ou Player Normal
-    function carregarVideoPlayer(url, tituloDisplay) {
+    function carregarMidiaPlayer(url, tipo, tituloDisplay) {
       const player = document.getElementById('iframe-player');
       player.removeAttribute('srcdoc');
 
@@ -199,8 +211,8 @@
         player.srcdoc = `
           <body style="background:#0a0a0a; color:#fff; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; font-family:sans-serif; text-align:center;">
             <div style="background:#181818; padding:30px; border-radius:12px; border:1px solid #333; max-width:80%;">
-              <h2 style="margin-top:0; color:#e50914;">🎬 Vídeo / Trailer em breve!</h2>
-              <p style="color:#aaa; font-size:15px; margin-bottom:0;">O link de <b>${tituloDisplay}</b> ainda não foi cadastrado no servidor.</p>
+              <h2 style="margin-top:0; color:#e50914;">🎬 Conteúdo em breve!</h2>
+              <p style="color:#aaa; font-size:15px; margin-bottom:0;">O link de <b>${tituloDisplay}</b> ainda não foi cadastrado.</p>
             </div>
           </body>`;
         return;
@@ -208,12 +220,17 @@
 
       let urlTratada = url.trim();
 
-      // Tratamento para post do Telegram (Adiciona ?embed=1)
+      // Limpa parâmetros de comentários do Telegram caso o usuário tenha colar o link com ?comment=
+      if (urlTratada.includes('t.me/') && urlTratada.includes('?comment=')) {
+        urlTratada = urlTratada.split('?comment=')[0];
+      }
+
+      // Adiciona o parâmetro embed para carregar no iframe do Telegram
       if (urlTratada.includes('t.me/') && !urlTratada.includes('embed=1')) {
         urlTratada += (urlTratada.includes('?') ? '&' : '?') + 'embed=1';
       }
 
-      // Tratamento para YouTube (Converte para embed se necessário)
+      // YouTube
       if (urlTratada.includes('youtube.com/watch?v=')) {
         const id = urlTratada.split('v=')[1].split('&')[0];
         urlTratada = `https://www.youtube.com/embed/${id}?autoplay=1`;
@@ -222,11 +239,15 @@
         urlTratada = `https://www.youtube.com/embed/${id}?autoplay=1`;
       }
 
+      // Se for PDF de Mangá
+      if (tipo === 'manga' && (urlTratada.endsWith('.pdf') || urlTratada.includes('drive.google.com'))) {
+        urlTratada = `https://docs.google.com/gview?url=${encodeURIComponent(urlTratada)}&embedded=true`;
+      }
+
       player.src = urlTratada;
     }
 
     carregarDetalhes();
   </script>
 </body>
-</html>
 </html>
