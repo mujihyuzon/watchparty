@@ -11,15 +11,24 @@
   <script>(function(s){s.dataset.zone='11742409',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 
   <style>
-    /* Ocultar barra de rolagem horizontal nos carrosséis */
+    /* Container relativo para posicionar as setas por cima da fileira */
+    .fileira-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Estilo da fileira horizontal com rolagem suave */
     .fileira-scroll {
       display: flex;
       gap: 15px;
       overflow-x: auto;
       padding: 10px 0 20px 0;
       scroll-behavior: smooth;
+      width: 100%;
     }
 
+    /* Ocultar a barra de rolagem nativa */
     .fileira-scroll::-webkit-scrollbar {
       display: none;
     }
@@ -29,7 +38,47 @@
       scrollbar-width: none;
     }
 
-    /* Animação e Hover dos Cards estilo Netflix */
+    /* Botões de Setas de Navegação (Estilo Netflix) */
+    .seta-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-60%);
+      width: 45px;
+      height: 80%;
+      background: rgba(0, 0, 0, 0.65);
+      color: #fff;
+      border: none;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, opacity 0.2s;
+      opacity: 0;
+      border-radius: 4px;
+    }
+
+    /* Exibe as setas ao passar o mouse sobre a fileira */
+    .fileira-container:hover .seta-btn {
+      opacity: 1;
+    }
+
+    .seta-btn:hover {
+      background: rgba(0, 0, 0, 0.85);
+      color: #e50914;
+    }
+
+    .seta-esquerda {
+      left: -15px;
+    }
+
+    .seta-direita {
+      right: -15px;
+    }
+
+    /* Animação e Hover dos Cards */
     .card-item {
       flex: 0 0 170px;
       text-decoration: none;
@@ -78,10 +127,8 @@
   <!-- BANNER HERO COM VÍDEO / IMAGEM EM DESTAQUE -->
   <section id="hero-banner" style="position: relative; width: 100%; height: 80vh; min-height: 520px; overflow: hidden; display: flex; align-items: flex-end; padding: 0 50px 80px 50px; box-sizing: border-box; background: #181818;">
     
-    <!-- Background estático com Imagem de Capa (Fallback) -->
     <div id="hero-bg-image" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; filter: brightness(0.6); z-index: 0; transition: opacity 0.5s;"></div>
 
-    <!-- Player do Trailer no Fundo (YouTube Embed) -->
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden;">
       <iframe 
         id="hero-video"
@@ -91,10 +138,8 @@
       </iframe>
     </div>
 
-    <!-- Sombreamento de Gradiente -->
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(20,20,20,0.1) 0%, rgba(20,20,20,0.7) 65%, #141414 100%), linear-gradient(90deg, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.4) 50%, transparent 100%); z-index: 2;"></div>
 
-    <!-- Informações do Destaque -->
     <div style="position: relative; z-index: 3; max-width: 650px;">
       <span style="background: #e50914; color: #fff; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
         🔥 Em Destaque
@@ -121,7 +166,7 @@
 
   </section>
 
-  <!-- SEÇÕES DE CATEGORIAS ESTILO NETFLIX -->
+  <!-- SEÇÕES DE CATEGORIAS COM SETAS DE NAVEGAÇÃO -->
   <main id="secoes-catalogo" style="max-width: 1400px; margin: -40px auto 60px auto; padding: 0 40px; position: relative; z-index: 10;">
     <!-- As fileiras serão injetadas dinamicamente via JS -->
   </main>
@@ -131,8 +176,19 @@
     const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Ordem exata que você quer exibir no site
     const CATEGORIAS_ORDEM = ['Séries', 'Filmes', 'Animes', 'Desenhos', 'Doramas', 'Mangás'];
+
+    // Função para rolar a fileira lateralmente ao clicar nas setas
+    function rolarFileira(idElemento, direcao) {
+      const container = document.getElementById(idElemento);
+      const distanciaRolagem = 500; // Distância em pixels para cada clique
+      
+      if (direcao === 'esquerda') {
+        container.scrollBy({ left: -distanciaRolagem, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: distanciaRolagem, behavior: 'smooth' });
+      }
+    }
 
     function obterYoutubeEmbedUrl(url) {
       if (!url || url.trim() === '') return '';
@@ -174,18 +230,17 @@
         document.getElementById('hero-video').src = embedUrl;
       }
 
-      // 2. Agrupar Títulos por Categoria
+      // 2. Agrupar Títulos por Categoria com Setas de Rolagem
       const containerSecoes = document.getElementById('secoes-catalogo');
       containerSecoes.innerHTML = '';
 
-      CATEGORIAS_ORDEM.forEach(categoriaNome => {
-        // Filtra os itens dessa categoria (ignora maiúsculas/minúsculas)
+      CATEGORIAS_ORDEM.forEach((categoriaNome, index) => {
         const itensDaCategoria = todos.filter(item => 
           item.categoria && item.categoria.trim().toLowerCase() === categoriaNome.toLowerCase()
         );
 
-        // Se houver títulos cadastrados nessa categoria, renderiza a fileira
         if (itensDaCategoria.length > 0) {
+          const idFileira = `scroll-fileira-${index}`;
           const secaoDiv = document.createElement('section');
           secaoDiv.id = `categoria-${categoriaNome}`;
           secaoDiv.style.marginBottom = '35px';
@@ -206,8 +261,12 @@
             <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 12px; border-left: 4px solid #e50914; padding-left: 10px; color: #e5e5e5;">
               ${categoriaNome}
             </h2>
-            <div class="fileira-scroll">
-              ${htmlCards}
+            <div class="fileira-container">
+              <button class="seta-btn seta-esquerda" onclick="rolarFileira('${idFileira}', 'esquerda')">❮</button>
+              <div id="${idFileira}" class="fileira-scroll">
+                ${htmlCards}
+              </div>
+              <button class="seta-btn seta-direita" onclick="rolarFileira('${idFileira}', 'direita')">❯</button>
             </div>
           `;
 
