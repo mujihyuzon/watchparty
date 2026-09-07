@@ -12,26 +12,36 @@
   <!-- SCRIPT DO MONETAG (ONCLICK) -->
   <script>(function(s){s.dataset.zone='11742409',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </head>
-<body style="background-color: #141414; color: #fff; font-family: sans-serif; margin: 0; padding: 0;">
+<body style="background-color: #141414; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; min-height: 100vh;">
 
   <!-- Header -->
-  <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: #000;">
-    <a href="index.html" class="logo" style="font-size: 24px; font-weight: bold; color: #e50914; text-decoration: none;">WatchParty</a>
-    <a href="index.html" class="btn-primary" style="background: #e50914; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold;">Voltar ao Catálogo</a>
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: rgba(0,0,0,0.85); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(5px);">
+    <a href="index.html" style="font-size: 26px; font-weight: bold; color: #e50914; text-decoration: none; letter-spacing: 0.5px;">WatchParty</a>
+    <a href="index.html" style="background: #e50914; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: 600; transition: 0.2s;">← Voltar ao Catálogo</a>
   </header>
 
-  <!-- Container do Player -->
-  <main style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
-    <h1 id="titulo-conteudo" style="font-size: 28px; margin-bottom: 10px;">Carregando...</h1>
-    <p id="categoria-conteudo" style="color: #e50914; font-weight: bold; margin-bottom: 20px;"></p>
+  <!-- Container Principal -->
+  <main style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
+    
+    <!-- Cabeçalho do Conteúdo -->
+    <div style="margin-bottom: 20px;">
+      <span id="categoria-conteudo" style="background: #e50914; color: #fff; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">CARREGANDO...</span>
+      <h1 id="titulo-conteudo" style="font-size: 32px; margin: 12px 0 5px 0;">Carregando título...</h1>
+    </div>
 
-    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+    <!-- Area do Player -->
+    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.9); border: 1px solid #222;">
       <iframe id="iframe-player" src="" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
     </div>
+
   </main>
 
-  <script src="app.js"></script>
   <script>
+    // Inicialização do Supabase na própria detalhes.html
+    const SUPABASE_URL = 'https://odspcuyuwgxljbuqiwjv.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_OKNl6-y_I-5EASJoBX6sIA_WT9-ZUYh';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     async function carregarConteudo() {
       const urlParams = new URLSearchParams(window.location.search);
       const id = urlParams.get('id');
@@ -41,28 +51,34 @@
         return;
       }
 
-      // Busca as informações no Supabase
-      const { data, error } = await _supabase
+      // Busca as informações do ID no Supabase
+      const { data, error } = await supabaseClient
         .from('conteudos')
         .select('*')
         .eq('id', id)
         .single();
 
-      if (data) {
-        document.getElementById('titulo-conteudo').innerText = data.titulo;
-        document.getElementById('categoria-conteudo').innerText = `Categoria: ${data.categoria}`;
+      if (error || !data) {
+        document.getElementById('titulo-conteudo').innerText = 'Conteúdo não encontrado';
+        return;
+      }
 
-        if (data.video_url) {
-          document.getElementById('iframe-player').src = data.video_url;
-        } else {
-          document.getElementById('iframe-player').srcdoc = `
-            <div style="display:flex; height:100%; justify-content:center; align-items:center; color:#888; font-family:sans-serif; text-align:center;">
-              <div>
-                <h3>Vídeo/Capítulo em breve!</h3>
-                <p style="font-size: 14px;">O link do conteúdo ainda não foi adicionado ao banco.</p>
-              </div>
-            </div>`;
-        }
+      // Atualiza textos na tela
+      document.getElementById('titulo-conteudo').innerText = data.titulo;
+      document.getElementById('categoria-conteudo').innerText = data.categoria;
+      document.title = `${data.titulo} - WatchParty`;
+
+      // Se tiver link de vídeo cadastrado roda o iframe, senão exibe tela de em breve
+      if (data.video_url && data.video_url.trim() !== '') {
+        document.getElementById('iframe-player').src = data.video_url;
+      } else {
+        document.getElementById('iframe-player').srcdoc = `
+          <body style="background:#0a0a0a; color:#fff; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; font-family:sans-serif; text-align:center;">
+            <div style="background:#181818; padding:30px; border-radius:12px; border:1px solid #333; max-width:80%;">
+              <h2 style="margin-top:0; color:#e50914;">🎬 Conteúdo em breve!</h2>
+              <p style="color:#aaa; font-size:15px; margin-bottom:0;">O vídeo / capítulo de <b>${data.titulo}</b> está sendo processado e estará disponível logo em breve no servidor.</p>
+            </div>
+          </body>`;
       }
     }
 
